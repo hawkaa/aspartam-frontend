@@ -1,0 +1,9 @@
+{
+  "name": "aspartam",
+  "version": "0.0.1",
+  "description": "Aspartam Spacemaker Frontend",
+  "main": "index.js",
+  "repository": "https://github.com/hawkaa/aspartam",
+  "author": "hakon@aamdal.com",
+  "license": "MIT"
+}
