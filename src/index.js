@@ -1,7 +1,6 @@
 import _ from 'lodash';
 import './style.css';
 import pentagon_big from './pentagon-big.svg';
-import polygons from './polygons.json'
 import printMe from './print.js';
 
 function component() {
@@ -23,10 +22,7 @@ function component() {
 
     element.appendChild(btn);
 
-
-
     return element;
 }
 
 document.body.appendChild(component());
-console.log(polygons);
