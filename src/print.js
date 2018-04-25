@@ -1,4 +1,3 @@
 export default function printMe() {
-    alert('halle');
+  return 1;
 }
-  

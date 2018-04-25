@@ -1,28 +1,19 @@
 import _ from 'lodash';
 import './style.css';
-import pentagon_big from './pentagon-big.svg';
-import printMe from './print.js';
+import printMe from './print';
 
 function component() {
-    var element = document.createElement('div');
+  const element = document.createElement('div');
+  element.innerHTML = _.join(['Hello', 'webpack'], ' ');
+  element.classList.add('hello');
 
+  const btn = document.createElement('button');
+  btn.innerHTML = 'Click me';
+  btn.onclick = printMe;
 
-    // Lodash, now imported by this script
-    element.innerHTML = _.join(['Hello', 'webpack'], ' ');
-    element.classList.add('hello');
+  element.appendChild(btn);
 
-    var img = new Image();
-    img.src = pentagon_big;
-
-    element.appendChild(img);
-
-    const btn = document.createElement('button');
-    btn.innerHTML = 'Click me';
-    btn.onclick = printMe;
-
-    element.appendChild(btn);
-
-    return element;
+  return element;
 }
 
 document.body.appendChild(component());
