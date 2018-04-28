@@ -1,9 +1,10 @@
 # Aspartam Frontend
 
-#### Getting started started
+#### Getting started
 ```
 yarn
 ```
+
 #### Development server
 ```
 yarn start
