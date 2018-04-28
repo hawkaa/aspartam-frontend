@@ -6,22 +6,18 @@
         <h5>Status: Saved</h5>
       </div>
     </md-toolbar>
-    <div id="map"></div>
+    <div id="map" />
   </div>
 </template>
 
 <script>
 import L from 'leaflet';
 
-// Store the map variable
-let map;
-
 export default {
-
   mounted: () => {
     /* render the map when the element is mounted */
-    map = L.map('map')
-  }
+    L.map('map');
+  },
 };
 </script>
 
