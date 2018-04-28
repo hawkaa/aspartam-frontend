@@ -1,18 +1,33 @@
 <template>
-  <div id="app">
-    <h1>halla</h1>
+  <div>
+    <md-toolbar class="md-primary">
+      <h1 class="md-title">Aspartam Polygon Editor</h1>
+      <div class="md-toolbar-section-end">
+        <h5>Status: Saved</h5>
+      </div>
+    </md-toolbar>
+    <div id="map"></div>
   </div>
 </template>
 
 <script>
+import L from 'leaflet';
+
+// Store the map variable
+let map;
+
 export default {
 
+  mounted: () => {
+    /* render the map when the element is mounted */
+    map = L.map('map')
+  }
 };
 </script>
 
 <style>
-#app {
-  font-family: Helvetica Neue,Segoe UI,Helvetica,Arial,sans-serif;
-  font-size: 18px;
+#map {
+  width: 100%;
+  height: 100%;
 }
 </style>
