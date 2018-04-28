@@ -7,9 +7,9 @@
   "author": "hakon@aamdal.com",
   "license": "MIT",
   "scripts": {
-    "test": "jest",
+    "test": "jest --coverage",
     "build": "webpack --config webpack.prod.js",
-    "start": "webpack-dev-server --open --config webpack.dev.js",
+    "start": "webpack-dev-server --inline --progress --config webpack.dev.js",
     "lint": "eslint *.js src/**/*.js"
   },
   "devDependencies": {
@@ -36,10 +36,5 @@
   },
   "dependencies": {
     "vue": "^2.5.16"
-  },
-  "jest": {
-    "transform": {
-      "^.+\\.js$": "babel-jest"
-    }
   }
 }
