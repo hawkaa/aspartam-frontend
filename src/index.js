@@ -1,16 +1,8 @@
-import './style.css';
-import printMe from './print';
+import Vue from 'vue';
+import App from './App.vue';
 
-function component() {
-  const element = document.createElement('div');
-
-  const btn = document.createElement('button');
-  btn.innerHTML = 'Click me';
-  btn.onclick = printMe;
-
-  element.appendChild(btn);
-
-  return element;
-}
-
-document.body.appendChild(component());
+/* eslint-disable no-new */
+new Vue({
+  el: '#app',
+  render: h => h(App),
+});
