@@ -18,7 +18,6 @@
 
 <script>
 import L from 'leaflet';
-import polygons from './polygons.json';
 import { union, intersect } from './turf-leaflet';
 
 export default {
@@ -33,7 +32,24 @@ export default {
 
       /* polygon layer group */
       polygonLayerGroup: null,
+
     };
+  },
+
+  computed: {
+    polygons() {
+      return this.$store.state.polygons;
+    },
+  },
+
+  watch: {
+    polygons(val) {
+      // keep the polygon layer in sync
+      this.polygonLayerGroup.clearLayers();
+      this.selected.clear();
+      const features = L.geoJSON(val);
+      features.getLayers().forEach(layer => this.polygonLayerGroup.addLayer(layer));
+    },
   },
 
   mounted() {
@@ -50,7 +66,7 @@ export default {
 
     /* add the geojson */
     this.polygonLayerGroup = L
-      .geoJSON(polygons)
+      .geoJSON(this.polygons)
       .addTo(map);
 
     /* fit bounds */
@@ -101,12 +117,14 @@ export default {
     mergeFeatures(operation) {
       const [a, b] = this.getFeaturesOrNull();
       if (a !== null && b !== null) {
+        /* Not very happy about this part. It actually adds and removes layers to the actual map
+            when it should only calculate a new geojson. Consider moving more responsibilities to
+            turf? */
         const feature = operation(a, b);
         this.polygonLayerGroup.addLayer(feature);
         this.polygonLayerGroup.removeLayer(a);
-        this.selected.delete(this.getId(a));
         this.polygonLayerGroup.removeLayer(b);
-        this.selected.delete(this.getId(b));
+        this.$store.dispatch('polygons', this.polygonLayerGroup.toGeoJSON());
       } else {
         this.dialogAlert = true;
       }
