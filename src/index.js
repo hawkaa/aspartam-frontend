@@ -1,6 +1,8 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 import VueMaterial from 'vue-material';
+import VueResource from 'vue-resource';
+
 
 import 'vue-material/dist/vue-material.min.css';
 import 'leaflet/dist/leaflet.css';
@@ -10,7 +12,9 @@ import polygons from './polygons.json';
 
 Vue.use(Vuex);
 Vue.use(VueMaterial);
+Vue.use(VueResource);
 
+const api = Vue.resource('http://localhost:8081/api/');
 
 /* eslint-disable no-new */
 const store = new Vuex.Store({
@@ -24,6 +28,7 @@ const store = new Vuex.Store({
   },
   actions: {
     polygons({ commit }, p) {
+      api.get();
       /* TODO: Sync with API */
       commit('polygons', p);
     },
