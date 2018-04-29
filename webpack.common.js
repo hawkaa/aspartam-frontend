@@ -2,7 +2,7 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
-const VueLoaderPlugin = require('vue-loader');
+const { VueLoaderPlugin } = require('vue-loader');
 
 module.exports = {
   entry: './src/index.js',
@@ -11,7 +11,7 @@ module.exports = {
     path: path.resolve(__dirname, 'dist'),
   },
   plugins: [
-    new VueLoaderPlugin(this),
+    new VueLoaderPlugin(),
     new CleanWebpackPlugin(['dist']),
     new HtmlWebpackPlugin({
       template: 'src/index.html',
@@ -19,6 +19,10 @@ module.exports = {
   ],
   module: {
     rules: [
+      {
+        test: /\.vue$/,
+        use: ['vue-loader'],
+      },
       {
         test: /\.(js|jsx)$/,
         exclude: /node_modules/,
@@ -31,10 +35,6 @@ module.exports = {
       {
         test: /\.(png|svg|jpg|gif)$/,
         use: ['file-loader'],
-      },
-      {
-        test: /\.vue$/,
-        loader: 'vue-loader',
       },
     ],
   },
