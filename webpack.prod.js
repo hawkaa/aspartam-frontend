@@ -12,6 +12,7 @@ module.exports = merge(common, {
     }),
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': JSON.stringify('production'),
+      'process.env.API_URL': JSON.stringify('https://api.aspartam.io/'), // doesn't exist, obviously
     }),
   ],
 });

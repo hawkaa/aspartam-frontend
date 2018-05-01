@@ -5,6 +5,7 @@
       <div class="md-toolbar-section-end">
         <md-button @click="union">Union</md-button>
         <md-button @click="intersect">Intersect</md-button>
+        <md-button @click="reset">Reset</md-button>
       </div>
     </md-app-toolbar>
     <md-app-content>
@@ -30,8 +31,8 @@ export default {
       /* selected polygon ids */
       selected: new Set(),
 
-      /* polygon layer group */
-      polygonLayerGroup: null,
+      /* layer group */
+      layerGroup: null,
 
     };
   },
@@ -43,18 +44,24 @@ export default {
   },
 
   watch: {
+
+    /* keep the polygon layer in sync on polygon update. Doesn't work with hot reload,
+        unfortunately :( */
     polygons(val) {
-      // keep the polygon layer in sync
-      this.polygonLayerGroup.clearLayers();
+      this.layerGroup.clearLayers();
       this.selected.clear();
       const features = L.geoJSON(val);
-      features.getLayers().forEach(layer => this.polygonLayerGroup.addLayer(layer));
+      features.getLayers().forEach(layer => this.layerGroup.addLayer(layer));
+      this.updateHighlightStyles();
     },
   },
 
   mounted() {
-    /* render the map when the element is mounted */
-    const map = L.map('map');
+    /* render the map when the element is mounted, and show the entire world */
+    const map = L.map('map', {
+      center: [51.5, -0.13],
+      zoom: 12,
+    });
 
     /* add background layer */
     L
@@ -64,30 +71,23 @@ export default {
       })
       .addTo(map);
 
-    /* add the geojson */
-    this.polygonLayerGroup = L
-      .geoJSON(this.polygons)
+    this.layerGroup = L
+      .featureGroup()
       .addTo(map);
 
-    /* fit bounds */
-    map.fitBounds(this.polygonLayerGroup.getBounds());
-
-    /* set styles */
-    this.updateHighlightStyles();
-
     /* event listeners */
-    this.polygonLayerGroup.on('click', this.onPolygonClick);
+    this.layerGroup.on('click', this.onPolygonClick);
   },
 
 
   methods: {
 
-    getId(layer) {
-      return this.polygonLayerGroup.getLayerId(layer);
+    getIdForLayer(layer) {
+      return this.layerGroup.getLayerId(layer);
     },
 
     onPolygonClick(event) {
-      const id = this.getId(event.layer);
+      const id = this.getIdForLayer(event.layer);
       if (this.selected.has(id)) {
         this.selected.delete(id);
       } else {
@@ -97,13 +97,17 @@ export default {
     },
 
     updateHighlightStyles() {
-      this.polygonLayerGroup.getLayers().forEach((layer) => {
-        if (this.selected.has(this.getId(layer))) {
+      this.layerGroup.getLayers().forEach((layer) => {
+        if (this.selected.has(this.getIdForLayer(layer))) {
           layer.setStyle({ fillColor: 'red' });
         } else {
           layer.setStyle({ fillColor: 'blue' });
         }
       });
+    },
+
+    reset() {
+      this.$store.dispatch('resetPolygons');
     },
 
     union() {
@@ -116,15 +120,20 @@ export default {
 
     mergeFeatures(operation) {
       const [a, b] = this.getFeaturesOrNull();
+      /* did I mention I hate null values? Where's my optionals? */
       if (a !== null && b !== null) {
-        /* Not very happy about this part. It actually adds and removes layers to the actual map
-            when it should only calculate a new geojson. Consider moving more responsibilities to
-            turf? */
-        const feature = operation(a, b);
-        this.polygonLayerGroup.addLayer(feature);
-        this.polygonLayerGroup.removeLayer(a);
-        this.polygonLayerGroup.removeLayer(b);
-        this.$store.dispatch('polygons', this.polygonLayerGroup.toGeoJSON());
+        const newFeature = operation(a, b);
+
+        /* create a temporary layer group with all features except the ones we're removing */
+        const tempLayerGroup = L.featureGroup();
+        this.layerGroup
+          .getLayers()
+          .filter(layer => layer !== a && layer !== b)
+          .forEach(layer => tempLayerGroup.addLayer(layer));
+        tempLayerGroup.addLayer(newFeature);
+
+        /* sync the new geojson with the store */
+        this.$store.dispatch('setPolygons', tempLayerGroup.toGeoJSON());
       } else {
         this.dialogAlert = true;
       }
@@ -135,8 +144,8 @@ export default {
         const values = this.selected.values();
         const idA = values.next().value;
         const idB = values.next().value;
-        const a = this.polygonLayerGroup.getLayer(idA);
-        const b = this.polygonLayerGroup.getLayer(idB);
+        const a = this.layerGroup.getLayer(idA);
+        const b = this.layerGroup.getLayer(idB);
         return [a, b];
       }
       return [null, null];
