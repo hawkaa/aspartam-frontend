@@ -73,7 +73,7 @@ export default {
       zoom: 12,
     });
 
-    /* add background layer */
+    /* add background layer. And yes, my mapbox access token is checked into SCM... */
     L
       .tileLayer('https://api.mapbox.com/styles/v1/mapbox/light-v9/tiles/256/{z}/{x}/{y}@2x?access_token={accessToken}', {
         accessToken: 'pk.eyJ1IjoiaGF3a2FhIiwiYSI6ImNpZzN3b2xqMzI2dDF1dm0zYnc2dm01ejMifQ.qf4qwnuEb8s5q_xTO6JfUQ',
