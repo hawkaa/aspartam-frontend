@@ -3,9 +3,13 @@
     <md-app-toolbar class="md-primary">
       <h1 class="md-title">Aspartam Polygon Editor</h1>
       <div class="md-toolbar-section-end">
-        <md-button @click="union">Union</md-button>
-        <md-button @click="intersect">Intersect</md-button>
-        <md-button @click="reset">Reset</md-button>
+        <md-button
+          :disabled="buttonsDisabled"
+          @click="union">Union</md-button>
+        <md-button
+          :disabled="buttonsDisabled"
+          @click="intersect">Intersect</md-button>
+        <md-button @click="reset" >Reset</md-button>
       </div>
     </md-app-toolbar>
     <md-app-content>
@@ -41,6 +45,9 @@ export default {
     polygons() {
       return this.$store.state.polygons;
     },
+    buttonsDisabled() {
+      return this.selected.size !== 2;
+    },
   },
 
   watch: {
@@ -49,7 +56,7 @@ export default {
         unfortunately :( */
     polygons(val) {
       this.layerGroup.clearLayers();
-      this.selected.clear();
+      this.selected = new Set();
       const features = L.geoJSON(val);
       features.getLayers().forEach(layer => this.layerGroup.addLayer(layer));
       this.updateHighlightStyles();
@@ -88,11 +95,14 @@ export default {
 
     onPolygonClick(event) {
       const id = this.getIdForLayer(event.layer);
-      if (this.selected.has(id)) {
-        this.selected.delete(id);
+      /* let's make set immutable to get vue to understand that the state is actually changing */
+      const selected = new Set(this.selected.values());
+      if (selected.has(id)) {
+        selected.delete(id);
       } else {
-        this.selected.add(id);
+        selected.add(id);
       }
+      this.selected = selected;
       this.updateHighlightStyles();
     },
 
