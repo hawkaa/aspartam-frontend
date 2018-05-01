@@ -3,16 +3,20 @@
     <md-app-toolbar class="md-primary">
       <h1 class="md-title">Aspartam Polygon Editor</h1>
       <div class="md-toolbar-section-end">
-        <md-button @click="union">Union</md-button>
-        <md-button @click="intersect">Intersect</md-button>
-        <md-button @click="reset">Reset</md-button>
+        <md-button
+          :disabled="buttonsDisabled"
+          @click="union">Union</md-button>
+        <md-button
+          :disabled="buttonsDisabled"
+          @click="intersect">Intersect</md-button>
+        <md-button @click="reset" >Reset</md-button>
       </div>
     </md-app-toolbar>
     <md-app-content>
       <div id="map" />
       <md-dialog-alert
-        :md-active.sync="dialogAlert"
-        md-content="Desired operation requires exactly two input polygons" />
+        :md-active.sync="error"
+        :md-content="error" />
     </md-app-content>
   </md-app>
 </template>
@@ -41,6 +45,12 @@ export default {
     polygons() {
       return this.$store.state.polygons;
     },
+    error() {
+      return this.$store.state.error;
+    },
+    buttonsDisabled() {
+      return this.selected.size !== 2;
+    },
   },
 
   watch: {
@@ -49,7 +59,7 @@ export default {
         unfortunately :( */
     polygons(val) {
       this.layerGroup.clearLayers();
-      this.selected.clear();
+      this.selected = new Set();
       const features = L.geoJSON(val);
       features.getLayers().forEach(layer => this.layerGroup.addLayer(layer));
       this.updateHighlightStyles();
@@ -63,7 +73,7 @@ export default {
       zoom: 12,
     });
 
-    /* add background layer */
+    /* add background layer. And yes, my mapbox access token is checked into SCM... */
     L
       .tileLayer('https://api.mapbox.com/styles/v1/mapbox/light-v9/tiles/256/{z}/{x}/{y}@2x?access_token={accessToken}', {
         accessToken: 'pk.eyJ1IjoiaGF3a2FhIiwiYSI6ImNpZzN3b2xqMzI2dDF1dm0zYnc2dm01ejMifQ.qf4qwnuEb8s5q_xTO6JfUQ',
@@ -88,11 +98,14 @@ export default {
 
     onPolygonClick(event) {
       const id = this.getIdForLayer(event.layer);
-      if (this.selected.has(id)) {
-        this.selected.delete(id);
+      /* let's make set immutable to get vue to understand that the state is actually changing */
+      const selected = new Set(this.selected.values());
+      if (selected.has(id)) {
+        selected.delete(id);
       } else {
-        this.selected.add(id);
+        selected.add(id);
       }
+      this.selected = selected;
       this.updateHighlightStyles();
     },
 
@@ -130,7 +143,10 @@ export default {
           .getLayers()
           .filter(layer => layer !== a && layer !== b)
           .forEach(layer => tempLayerGroup.addLayer(layer));
-        tempLayerGroup.addLayer(newFeature);
+
+        if (newFeature !== null) {
+          tempLayerGroup.addLayer(newFeature);
+        }
 
         /* sync the new geojson with the store */
         this.$store.dispatch('setPolygons', tempLayerGroup.toGeoJSON());
