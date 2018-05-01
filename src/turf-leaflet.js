@@ -18,5 +18,8 @@ export function union(a, b) {
 }
 
 export function intersect(a, b) {
-  return fromTurfToLeaflet(turf.intersect(a.toGeoJSON(), b.toGeoJSON()));
+  const result = turf.intersect(a.toGeoJSON(), b.toGeoJSON());
+  return result !== undefined
+    ? fromTurfToLeaflet(result)
+    : null;
 }

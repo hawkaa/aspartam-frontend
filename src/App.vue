@@ -140,7 +140,10 @@ export default {
           .getLayers()
           .filter(layer => layer !== a && layer !== b)
           .forEach(layer => tempLayerGroup.addLayer(layer));
-        tempLayerGroup.addLayer(newFeature);
+
+        if (newFeature !== null) {
+          tempLayerGroup.addLayer(newFeature);
+        }
 
         /* sync the new geojson with the store */
         this.$store.dispatch('setPolygons', tempLayerGroup.toGeoJSON());

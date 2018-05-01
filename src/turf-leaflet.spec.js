@@ -15,6 +15,13 @@ const b = L.polygon([
   [1, 1],
 ]);
 
+const c = L.polygon([
+  [20, 20],
+  [20, 21],
+  [21, 21],
+  [21, 20],
+]);
+
 test('union should return the union of two features', () => {
   const expected = L.polygon([
     [0, 0],
@@ -27,12 +34,6 @@ test('union should return the union of two features', () => {
 });
 
 test('union still merge non adjacent polygons', () => {
-  const c = L.polygon([
-    [20, 20],
-    [20, 21],
-    [21, 21],
-    [21, 20],
-  ]);
 
   const expected = L.polygon([
     [0, 0],
@@ -54,4 +55,8 @@ test('intersect should return the intersection of two features', () => {
   ]);
   /* easier to compare bounds */
   expect(intersect(a, b).getBounds()).toEqual(expected.getBounds());
+});
+
+test('intersect should return null if no result', () => {
+  expect(intersect(a, c)).toBeNull();
 });
