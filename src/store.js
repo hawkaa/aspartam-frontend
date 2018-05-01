@@ -9,26 +9,37 @@ export default function createStore() {
   return new Vuex.Store({
     state: {
       polygons: null,
+      error: null,
+      loading: false,
     },
     mutations: {
       polygons(s, p) {
         s.polygons = p;
       },
+      error(s, e) {
+        s.error = e;
+      },
     },
     actions: {
       getPolygons({ commit }) {
+        commit('loading', true);
         get()
           .then(p => commit('polygons', p))
-          .catch(() => alert('Could not fetch polygons'));
+          .catch(() => commit('error', 'Could not fetch polygons'))
+          .finally(commit('loading', false));
       },
       setPolygons({ commit }, p) {
         put(p)
           .then(() => commit('polygons', p))
-          .catch(() => alert('Could not store polygons'));
+          .catch(() => commit('error', 'Could not save polygons'))
+          .finally(commit('loading', false));
       },
-      resetPolygons({ dispatch }) {
+      resetPolygons({ commit, dispatch }) {
+        commit('loading', true);
         reset()
-          .then(() => dispatch('getPolygons'));
+          .then(() => dispatch('getPolygons'))
+          .catch(() => commit('error', 'Could not reset polygons'))
+          .finally(commit('loading', false));
       },
     },
   });

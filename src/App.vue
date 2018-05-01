@@ -15,8 +15,8 @@
     <md-app-content>
       <div id="map" />
       <md-dialog-alert
-        :md-active.sync="dialogAlert"
-        md-content="Desired operation requires exactly two input polygons" />
+        :md-active.sync="error"
+        :md-content="error" />
     </md-app-content>
   </md-app>
 </template>
@@ -44,6 +44,9 @@ export default {
   computed: {
     polygons() {
       return this.$store.state.polygons;
+    },
+    error() {
+      return this.$store.state.error;
     },
     buttonsDisabled() {
       return this.selected.size !== 2;

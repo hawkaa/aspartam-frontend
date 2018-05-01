@@ -34,7 +34,6 @@ test('union should return the union of two features', () => {
 });
 
 test('union still merge non adjacent polygons', () => {
-
   const expected = L.polygon([
     [0, 0],
     [0, 21],
